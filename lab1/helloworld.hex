@@ -1,0 +1,10 @@
+; Senior assembler (V2023-TSEA26-01)
+code
+02000000 20 helloworld.asm
+0202002a 21 helloworld.asm
+44400001 22 helloworld.asm
+6840a402 23 helloworld.asm
+04c00011 24 helloworld.asm
+41c00001 25 helloworld.asm
+04c00013 35 helloworld.asm
+rom0
