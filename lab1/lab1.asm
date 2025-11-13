@@ -30,6 +30,7 @@ loop
 handle_sample
 	push r0
 	push r1
+	push r2
 
 	move r0,ar0
 	move r1,ar1
@@ -97,6 +98,7 @@ handle_sample
 	move ar1,r1
 	move ar0,r0
 
+	pop r2
 	pop r1
 	pop r0
 
@@ -138,6 +140,23 @@ fir_kernel
 	nop
 	move ar1,r1
 
+	set ar0, coefficients
+
+	set top1, top_ringbuffer
+	set bot1, ringbuffer
+
+	repeat conv_loop,30
+	convss acr0, (ar0++), (ar1++%)
+conv_loop
+
+	move r2, ar1
+	nop
+	st0 (current_location), r2
+
+	convss acr0, (ar0++), (ar1++%)
+
+	st0 (ar1), r0 	; Store input sample in ring buffer
+	nop
 	;;  Hint: Remember to set ar0, step0, step1, bot1, and top1
 	;;  appropriately before starting the convolution.
 
@@ -158,7 +177,6 @@ fir_kernel
 	;;     convss ...  (ar1++%)
 	;;     Store r5 here
 	
-
 	;; Hint: You may need some scaling in this instruction. Without scaling
 	;; this will move bit 31-16 into r0 (after saturation and rounding)
 	move r0,sat rnd acr0
@@ -172,6 +190,7 @@ fir_kernel
 ;;; Allocate space for ringbuffer. We put this in DM1 since the
 ;;; filter coefficients are stored in DM0 (as we only have a rom in DM0)
 ;;; ----------------------------------------------------------------------
+
 	.ram1
 ringbuffer
 	.skip 31
