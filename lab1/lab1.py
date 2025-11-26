@@ -156,14 +156,15 @@ if __name__ == "__main__":
         plt.show(block=True)
 
 
-    scaling = 2
+    scaling = 8
 
     x = np.asarray(hq, dtype=float)
-    q = np.round(x * 32768).astype(int)
-    q = np.clip(q, -32768, 32767)
-    q - np.where(q < 0, q + 65536, q)
+    print(hq)
+    q = np.round(h * 32768 * scaling).astype(int)
+    # q = np.clip(q, -32768, 32767)
+    # q - np.where(q < 0, q + 65536, q)
 
-    q = q * scaling
+    # q = q * scaling
 
     for val in q:
         print(f".dw 0x{val:04x}")

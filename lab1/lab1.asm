@@ -7,7 +7,7 @@
 ;;; ----------------------------------------------------------------------
 ;;; Main loop. This loop ensures that handle_sample is called 1000 times.
 ;;; ----------------------------------------------------------------------
-	set r31,1000
+	set r31,100
 loop
 	call handle_sample
 
@@ -134,6 +134,8 @@ initfirkernel
 	.code
 fir_kernel
         ;;; FIXME - You need to implement the rest of this function
+	set r2, 10
+block_loop
 	in r0,0x10		; Read input sample -> r0
 	
 	ld0 r1,(current_location)
@@ -191,9 +193,13 @@ conv_loop
 	;; Hint: You may need some scaling in this instruction. Without scaling
 	;; this will move bit 31-16 into r0 (after saturation and rounding)
 
-	move r0,sat rnd acr0 ; We scale it for mul2 to remove the extra signed bit we got from the multiplication
+	move r0,sat rnd div4 acr0 ; We scale it for mul2 to remove the extra signed bit we got from the multiplication
 	nop
 	out 0x11,r0		; Output a sample
+	
+	add r2,-1
+	jump.ne block_loop	
+
 	ret
 	
 
@@ -260,38 +266,38 @@ coefficients
 ;;	.df 0.000962
 ;;	.df 0.000442
 
-	.dw 0x0000
-	.dw 0x0000
-	.dw 0x0000
-	.dw 0x0100
-	.dw 0x0200
-	.dw 0x0300
-	.dw 0x0400
-	.dw 0x0600
-	.dw 0x0700
-	.dw 0x0a00
-	.dw 0x0c00
-	.dw 0x0e00
-	.dw 0x1000
-	.dw 0x1100
-	.dw 0x1200
-	.dw 0x1300
-	.dw 0x1300
-	.dw 0x1200
-	.dw 0x1100
-	.dw 0x1000
-	.dw 0x0e00
-	.dw 0x0c00
-	.dw 0x0a00
-	.dw 0x0700
-	.dw 0x0600
-	.dw 0x0400
-	.dw 0x0300
-	.dw 0x0200
-	.dw 0x0100
-	.dw 0x0000
-	.dw 0x0000
-	.dw 0x0000
+.dw 0x0074
+.dw 0x00fc
+.dw 0x01f7
+.dw 0x03b2
+.dw 0x0674
+.dw 0x0a6e
+.dw 0x0fb6
+.dw 0x163f
+.dw 0x1dd7
+.dw 0x2628
+.dw 0x2ebf
+.dw 0x3717
+.dw 0x3ea0
+.dw 0x44d4
+.dw 0x493d
+.dw 0x4b88
+.dw 0x4b88
+.dw 0x493d
+.dw 0x44d4
+.dw 0x3ea0
+.dw 0x3717
+.dw 0x2ebf
+.dw 0x2628
+.dw 0x1dd7
+.dw 0x163f
+.dw 0x0fb6
+.dw 0x0a6e
+.dw 0x0674
+.dw 0x03b2
+.dw 0x01f7
+.dw 0x00fc
+.dw 0x0074
 
 ;;; ----------------------------------------------------------------------
 ;;; Stack space
