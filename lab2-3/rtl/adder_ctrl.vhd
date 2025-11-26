@@ -12,8 +12,31 @@ end adder_ctrl;
 architecture adder_ctrl_rtl of adder_ctrl is
 begin  -- adder_ctrl_rtl
 
-  -- Remove the following lines and put your code here
-  mx_opa_inv_o <= '0';
-  mx_ci_o <= "00";
+case function_i is
+  when "000" =>
+    mx_ci_o <= "00";
+    mx_opa_inv_o <= "0";
+  when "001" =>
+    mx_ci_o <= "10";
+    mx_opa_inv_o <= "0";
+  when "010" =>
+    mx_ci_o <= "01";
+    mx_opa_inv_o <= "1";
+  when "011" =>
+    mx_ci_o <= "10";
+    mx_opa_inv_o <= "1";
+  when "100" =>
+    mx_ci_o <= "11";
+    mx_opa_inv_o <= opa_sign_i;
+  when "101" =>
+    mx_ci_o <= "01";
+    mx_opa_inv_o <= "1";
+  when "110" =>
+    mx_ci_o <= "01";
+    mx_opa_inv_o <= "1";
+  when "111" =>
+    mx_ci_o <= "01";
+    mx_opa_inv_o <= "1";
+end case;
 
 end adder_ctrl_rtl;

@@ -12,8 +12,15 @@ end min_max_ctrl;
 
 architecture min_max_ctrl_rtl of min_max_ctrl is
 begin  -- min_max_ctrl_rtl
-  
-  -- Remove the following line and put your code here
-  mx_minmax_o <= '0';
+
+signal maxmin <= ((not opb_sign_i) and (not carry_i)) or (opa_sign_i and carry_i)
+
+case function_i is
+  when "110" =>
+    mx_minmax_o <= maxmin;
+  when "111" =>
+    mx_minmax_o <= not maxmin;
+  when others => mx_minmax_o <= 'X';
+end case;
 
 end min_max_ctrl_rtl;
