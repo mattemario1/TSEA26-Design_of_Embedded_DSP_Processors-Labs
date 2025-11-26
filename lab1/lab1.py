@@ -103,7 +103,7 @@ def lab1():
 
     # Create a low pass filter with a cut-off frequency of 15 Hz
 
-    order = 31
+    order = 32
     # FIXME - Insert the correct value here!
     h = scipy.signal.firwin(order, 15/(Fs/2), window="hamming", pass_zero="lowpass")
 
@@ -141,7 +141,7 @@ def lab1():
 
 
 if __name__ == "__main__":
-    h = lab1()
+    h, hq = lab1()
 
     if not sys.flags.interactive:
         # If we're running non-interactively as `python3 lab1.py` we want to keep
@@ -154,3 +154,16 @@ if __name__ == "__main__":
         signal.signal(signal.SIGINT, signal.SIG_DFL)
 
         plt.show(block=True)
+
+
+    scaling = 2
+
+    x = np.asarray(hq, dtype=float)
+    q = np.round(x * 32768).astype(int)
+    q = np.clip(q, -32768, 32767)
+    q - np.where(q < 0, q + 65536, q)
+
+    q = q * scaling
+
+    for val in q:
+        print(f".dw 0x{val:04x}")

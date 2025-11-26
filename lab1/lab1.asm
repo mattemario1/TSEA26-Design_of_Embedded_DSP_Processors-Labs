@@ -138,24 +138,35 @@ fir_kernel
 	
 	ld0 r1,(current_location)
 	nop
-	move ar1,r1
+	move ar1, r1
+	nop
+
+	st1 (ar1), r0	; Store input sample in ring buffer
 
 	set ar0, coefficients
 
 	set top1, top_ringbuffer
 	set bot1, ringbuffer
+	set step0, 1
+	set step1, 1
 
-	repeat conv_loop,30
+	clr acr0
+
+	repeat conv_loop,31
 	convss acr0, (ar0++), (ar1++%)
-conv_loop
-
-	move r2, ar1
 	nop
-	st0 (current_location), r2
-
+conv_loop
+	nop
+	move r1, ar1
+	nop
+	st0 (current_location), r1
+	nop
 	convss acr0, (ar0++), (ar1++%)
+	nop
 
-	st0 (ar1), r0 	; Store input sample in ring buffer
+	; st0 (ar1), r0 	; Store input sample in ring buffer
+	nop
+	nop
 	nop
 	;;  Hint: Remember to set ar0, step0, step1, bot1, and top1
 	;;  appropriately before starting the convolution.
@@ -179,9 +190,9 @@ conv_loop
 	
 	;; Hint: You may need some scaling in this instruction. Without scaling
 	;; this will move bit 31-16 into r0 (after saturation and rounding)
-	move r0,sat rnd acr0
-	nop
 
+	move r0,sat rnd acr0 ; We scale it for mul2 to remove the extra signed bit we got from the multiplication
+	nop
 	out 0x11,r0		; Output a sample
 	ret
 	
@@ -215,39 +226,73 @@ coefficients
 ;;;  Hint: You might find it easy to use fprintf() in matlab to
 ;;;  create this part. (fprintf in matlab can handle vectors)
 
-	.scale 1.0
-	.df 0.000442
-	.df 0.000962
-	.df 0.001918
-	.df 0.003610
-	.df 0.006302
-	.df 0.010187
-	.df 0.015344
-	.df 0.021726
-	.df 0.029141
-	.df 0.037262
-	.df 0.045652
-	.df 0.053797
-	.df 0.061157
-	.df 0.067213
-	.df 0.071523
-	.df 0.073763
-	.df 0.073763
-	.df 0.071523
-	.df 0.067213
-	.df 0.061157
-	.df 0.053797
-	.df 0.045652
-	.df 0.037262
-	.df 0.029141
-	.df 0.021726
-	.df 0.015344
-	.df 0.010187
-	.df 0.006302
-	.df 0.003610
-	.df 0.001918
-	.df 0.000962
-	.df 0.000442
+;;	.scale 1.0
+;;	.df 0.000442
+;;	.df 0.000962
+;;	.df 0.001918
+;;	.df 0.003610
+;;	.df 0.006302
+;;	.df 0.010187
+;;	.df 0.015344
+;;	.df 0.021726
+;;	.df 0.029141
+;;	.df 0.037262
+;;	.df 0.045652
+;;	.df 0.053797
+;;	.df 0.061157
+;;	.df 0.067213
+;;	.df 0.071523
+;;	.df 0.073763
+;;	.df 0.073763
+;;	.df 0.071523
+;;	.df 0.067213
+;;	.df 0.061157
+;;	.df 0.053797
+;;	.df 0.045652
+;;	.df 0.037262
+;;	.df 0.029141
+;;	.df 0.021726
+;;	.df 0.015344
+;;	.df 0.010187
+;;	.df 0.006302
+;;	.df 0.003610
+;;	.df 0.001918
+;;	.df 0.000962
+;;	.df 0.000442
+
+	.dw 0x0000
+	.dw 0x0000
+	.dw 0x0000
+	.dw 0x0100
+	.dw 0x0200
+	.dw 0x0300
+	.dw 0x0400
+	.dw 0x0600
+	.dw 0x0700
+	.dw 0x0a00
+	.dw 0x0c00
+	.dw 0x0e00
+	.dw 0x1000
+	.dw 0x1100
+	.dw 0x1200
+	.dw 0x1300
+	.dw 0x1300
+	.dw 0x1200
+	.dw 0x1100
+	.dw 0x1000
+	.dw 0x0e00
+	.dw 0x0c00
+	.dw 0x0a00
+	.dw 0x0700
+	.dw 0x0600
+	.dw 0x0400
+	.dw 0x0300
+	.dw 0x0200
+	.dw 0x0100
+	.dw 0x0000
+	.dw 0x0000
+	.dw 0x0000
+
 ;;; ----------------------------------------------------------------------
 ;;; Stack space
 ;;; ----------------------------------------------------------------------
