@@ -11,16 +11,22 @@ entity min_max_ctrl is
 end min_max_ctrl;
 
 architecture min_max_ctrl_rtl of min_max_ctrl is
+
+  signal maxmin : std_logic := '0';
+
 begin  -- min_max_ctrl_rtl
+-- maxmin <= (((not carry_i) and (opb_sign_i)) or ((carry_i) and (not opa_sign_i)));
+maxmin <= not ((not opa_sign_i) and opb_sign_i) or ((opa_sign_i xnor opb_sign_i) and (not carry_i));
+-- maxmin <= ((not opb_sign_i) and (not carry_i)) or (opa_sign_i and carry_i);
 
-signal maxmin <= ((not opb_sign_i) and (not carry_i)) or (opa_sign_i and carry_i)
-
-case function_i is
-  when "110" =>
-    mx_minmax_o <= maxmin;
-  when "111" =>
-    mx_minmax_o <= not maxmin;
-  when others => mx_minmax_o <= 'X';
-end case;
+process (function_i, maxmin) begin
+  case function_i is
+    when "110" =>
+      mx_minmax_o <= maxmin;
+    when "111" =>
+      mx_minmax_o <= not maxmin;
+    when others => mx_minmax_o <= 'X';
+  end case;
+  end process;
 
 end min_max_ctrl_rtl;
