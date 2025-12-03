@@ -1,0 +1,5 @@
+
+add wave -position end  sim:/dsp_system_top/dsp_core/ALU/adder_ctrl/function_i
+add wave -position end  sim:/dsp_system_top/dsp_core/ALU/opa_i
+add wave -position end  sim:/dsp_system_top/dsp_core/ALU/opb_i
+add wave -position end  sim:/dsp_system_top/dsp_core/ALU/result_o
