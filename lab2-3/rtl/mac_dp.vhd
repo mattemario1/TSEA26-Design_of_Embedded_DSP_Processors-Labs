@@ -63,22 +63,22 @@ begin  -- behav
   begin  -- process ctrl_table
     case c_macop is
 	-----------------------------------------------------------------------------------------------------
-	when "0000" => c_dornd <= '0'; c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "00"; c_doabs <= '0'; -- CLR
-	when "0001" => c_dornd <= '0'; c_invopb <= "00"; c_opasel <= "001"; c_opbsel <= "01"; c_doabs <= '0'; -- ADD
-	when "0010" => c_dornd <= '0'; c_invopb <= "01"; c_opasel <= "001"; c_opbsel <= "01"; c_doabs <= '0'; -- SUB
-	when "0011" => c_dornd <= '0'; c_invopb <= "01"; c_opasel <= "001"; c_opbsel <= "01"; c_doabs <= '0'; -- CMP
-	when "0100" => c_dornd <= '0'; c_invopb <= "01"; c_opasel <= "000"; c_opbsel <= "01"; c_doabs <= '0'; -- NEG
+	when "0000" => c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "00"; -- CLR
+	when "0001" => c_invopb <= "00"; c_opasel <= "001"; c_opbsel <= "01"; -- ADD
+	when "0010" => c_invopb <= "01"; c_opasel <= "001"; c_opbsel <= "01"; -- SUB
+	when "0011" => c_invopb <= "01"; c_opasel <= "001"; c_opbsel <= "01"; -- CMP
+	when "0100" => c_invopb <= "01"; c_opasel <= "000"; c_opbsel <= "01"; -- NEG
 	-----------------------------------------------------------------------------------------------------
-	when "0101" => c_dornd <= '0'; c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "01"; c_doabs <= '1'; -- ABS
+	when "0101" => c_invopb <= "10"; c_opasel <= "000"; c_opbsel <= "01"; -- ABS
 	-----------------------------------------------------------------------------------------------------
-	when "0110" => c_dornd <= '0'; c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "10"; c_doabs <= '0'; -- MUL
-	when "0111" => c_dornd <= '0'; c_invopb <= "00"; c_opasel <= "001"; c_opbsel <= "10"; c_doabs <= '0'; -- MAC
-	when "1000" => c_dornd <= '0'; c_invopb <= "01"; c_opasel <= "001"; c_opbsel <= "10"; c_doabs <= '0'; -- MDM
+	when "0110" => c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "10"; -- MUL
+	when "0111" => c_invopb <= "00"; c_opasel <= "001"; c_opbsel <= "10"; -- MAC
+	when "1000" => c_invopb <= "01"; c_opasel <= "001"; c_opbsel <= "10"; -- MDM
 	-----------------------------------------------------------------------------------------------------
-	when "1001" => c_dornd <= '0'; c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "01"; c_doabs <= '0'; -- MOVE
-	when "1010" => c_dornd <= '1'; c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "01"; c_doabs <= '0'; -- MOVE_ROUND
+	when "1001" => c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "01"; -- MOVE
+	when "1010" => c_invopb <= "00"; c_opasel <= "010"; c_opbsel <= "01"; -- MOVE_ROUND
 	-----------------------------------------------------------------------------------------------------
-	when others => c_dornd <= '0'; c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "00"; c_doabs <= '0'; -- NOP
+	when others => c_invopb <= "00"; c_opasel <= "000"; c_opbsel <= "00"; -- NOP
 	-----------------------------------------------------------------------------------------------------
     end case;
   end process ctrl_table;
@@ -120,7 +120,8 @@ begin  -- behav
   with c_opasel select
     adder_opa <=
     (others => '0') when "000",
-    mac_operanda    when others;
+    mac_operanda    when "001",
+    x"0000008000" when others;
   -----------------------------------------------------------------------------
 
 
@@ -150,7 +151,8 @@ begin  -- behav
   with c_invopb select
     adder_cin <=
     '0' when "00",
-    '1' when others;
+    '1' when "01",
+    mac_operandb(39) when others;
   --
   with adder_cin select
     adder_opb <=
@@ -166,45 +168,19 @@ begin  -- behav
   -----------------------------------------------------------------------------
 
   -----------------------------------------------------------------------------
-  -- Take the absolute value if necessary
-  absolute: process (c_doabs, adder_result)
-  begin  -- process absolute
-    abs_result <= adder_result;
-    if c_doabs = '1' then
-      if adder_result(39) = '1' then
-        abs_result <= not adder_result + 1;
-      end if;
-    end if;
-  end process absolute;
-  -----------------------------------------------------------------------------
-
-  -----------------------------------------------------------------------------
-  -- Round the value if necessary
-  rounding: process (c_dornd, abs_result)
-  begin  -- process rounding
-    round_result <= abs_result;
-    if c_dornd = '1' then
-      if abs_result(15) = '1' then
-        round_result <= (abs_result(39 downto 16) & X"0000") + 65536;
-      end if;
-    end if;
-  end process rounding;
-  -----------------------------------------------------------------------------
-
-  -----------------------------------------------------------------------------
   -- Create some overflow flag related signals
   add_pos_overflow1 <= (not adder_opa(39) and not adder_opb(39) and adder_result(39));
-  add_pos_overflow2 <= '1' when ((c_dornd = '1') and (abs_result(39 downto 16) = x"7fffff")) else '0';
+  add_pos_overflow2 <= '1' when ((c_opasel = "010") and (adder_result(39 downto 16) = x"7fffff")) else '0';
   add_pos_overflow <= add_pos_overflow1 or add_pos_overflow2;
   add_neg_overflow1 <= (adder_opa(39) and adder_opb(39) and not adder_result(39));
-  add_neg_overflow2 <= '1' when ((c_dosat = '1') and (adder_result = x"8000000000")) else '0';
+  add_neg_overflow2 <= '1' when ((c_opasel = "011") and (adder_result = x"8000000000")) else '0';
   add_neg_overflow <= add_neg_overflow1 or add_neg_overflow2;
   -----------------------------------------------------------------------------
 
   -----------------------------------------------------------------------------
   -- Saturation handling is done in a separate module that you need to edit!
   sat_box : saturation port map (
-    value_i   => round_result,
+    value_i   => adder_result,
     do_sat_i  => c_dosat,
     value_o   => mac_result,
     did_sat_o => sat_flag);
