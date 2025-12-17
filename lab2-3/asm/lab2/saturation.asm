@@ -43,11 +43,206 @@
 	move	r1,sat acr0	 ; r1 = 0x8012
 	move	r2,mul2 acr0 	 ; r2 = 0x0024 (no saturation)
 	move	r3,sat mul2 acr0 ; r3 = 0x8000 (saturation should occur)
+	move	r4,rnd div2 acr0 ; r3 = 0x
+	
+	absl	acr1, acr0
+	move	r5,acr1
 
 	out	0x11,r0		
 	out	0x11,r1		
 	out	0x11,r2	
 	out	0x11,r3
+	out	0x11,r4
+	out 0x11,r5
+
+	set		r0, 0x3456
+	set 	r1, 0x0000
+	set		r2, 0x3454
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	subl	acr2, acr0, acr1
+	nop
+	nop
+
+	move	r0,acr2
+	nop
+	nop
+	out	0x11,r0		
+
+	set		r0, 0x8000
+	set 	r1, 0x0000
+	set		r2, 0x8000
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	addl	acr2, acr0, acr1
+	nop
+	nop
+
+	move	r0,acr2
+	nop
+	nop
+	out	0x11,r0		
+
+	set		r0, 0x3456
+	set 	r1, 0x0000
+	set		r2, 0x3454
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	addl	acr2, acr0, acr1
+	nop
+	nop
+
+	move	r0,acr2
+	nop
+	nop
+	out	0x11,r0	
+
+	set		r0, 0x3776
+	set 	r1, 0x0000
+	set		r2, 0x3456
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	cmpl	acr0, acr1
+	nop
+	nop
+	nop
+	nop
+
+	move	r0,fl0		; read flags register
+	nop
+	nop
+	out		0x11,r0	
+
+	set		r0, 0x3456
+	set 	r1, 0x0000
+	set		r2, 0x3454
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	negl	acr0, acr1
+	nop
+	nop
+
+	move	r0,acr0
+	nop
+	nop
+	out		0x11,r0	
+
+
+	set		r0, 0x3456
+	set 	r1, 0x0000
+	set		r2, 0x3454
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	mulss	acr2, r0, r2
+	nop
+	nop
+
+	move	r0,acr2
+	nop
+	nop
+	out	0x11,r0	
+
+
+
+	set		r0, 0x3456
+	set 	r1, 0x0000
+	set		r2, 0x3454
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	macss	acr2, r0, r2
+	nop
+	nop
+
+	move	r0,acr2
+	nop
+	nop
+	out	0x11,r0	
+
+
+	set		r0, 0x3456
+	set 	r1, 0x0000
+	set		r2, 0x3454
+	set 	r3, 0x0000
+	nop
+	nop
+	move	acr0.h,r0
+	move	acr0.l,r1
+	move	acr1.h,r2
+	move	acr1.l,r3
+	nop
+	nop
+
+	mdmss	acr2, r0, r2
+	nop
+	nop
+
+	move	r0,acr2
+	nop
+	nop
+	out	0x11,r0	
+	; out	0x11,r1		
+	; out	0x11,r2	
+	; out	0x11,r3
+
+
+
+
 
 	;; terminate simulation
 	out	0x12,r0
