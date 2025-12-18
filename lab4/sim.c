@@ -533,8 +533,20 @@ static void insn_accelerated(uint32_t insn)
 {
 	int16_t val1,val2;
 	int16_t tmp;
+	int16_t mem_reg_0;
+	int16_t mem_reg_1;
 
-	sim_warning("Unimplemented accelerated instruction");
+	tmp = get_opa(insn);
+	mem_reg_0 = sr_read(0);
+	mem_reg_0 = sr_read(1);
+	val1 = mem0_read(tmp + mem_reg_0);
+	val2 = mem1_read(tmp + mem_reg_1);
+
+	tmp = sr_read(31) + abs16(val1 - val2);
+	sr_write(31, tmp);
+
+	set_reg(get_dreg(insn), tmp, 2);
+
 }
 
 /* Advances the program counter one step, taking care to honor delay
